@@ -22,10 +22,12 @@ export interface PunchResult {
 async function launchBrowser() {
   const isProduction = process.env.NODE_ENV === "production";
   if (isProduction) {
-    const chromium = await import("@sparticuz/chromium");
+    const chromium = await import("@sparticuz/chromium-min");
     return playwrightChromium.launch({
       args: chromium.default.args,
-      executablePath: await chromium.default.executablePath(),
+      executablePath: await chromium.default.executablePath(
+        "https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar"
+      ),
       headless: true,
     });
   }

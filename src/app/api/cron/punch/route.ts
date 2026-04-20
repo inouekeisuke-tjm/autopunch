@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { performPunch, PunchType } from "@/lib/punch-service";
 
+export const maxDuration = 60; // 60 seconds (max for Hobby)
+
 /**
  * GET /api/cron/punch?type=attendance|clock-out
  *

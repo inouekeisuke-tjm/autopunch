@@ -1,0 +1,60 @@
+name: Attendance Auto Punch
+
+on:
+  schedule:
+    # 平日 08:40 JST (23:40 UTC 前日)
+    - cron: '40 23 * * 0-4'
+    # 平日 21:00 JST (12:00 UTC)
+    - cron: '0 12 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'Punch type (attendance or clock-out)'
+        required: true
+        default: 'attendance'
+        type: choice
+        options:
+          - attendance
+          - clock-out
+
+jobs:
+  punch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright Browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Perform Punch
+        env:
+          # GitHub Secrets から読み込み
+          PUNCH_URL: ${{ secrets.PUNCH_URL }}
+          PUNCH_EMP_CODE: ${{ secrets.PUNCH_EMP_CODE }}
+          PUNCH_PASSWORD: ${{ secrets.PUNCH_PASSWORD }}
+        run: |
+          # 手動実行の場合は入力を優先、スケジュールの場合は時刻で判定
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            TYPE="${{ github.event.inputs.type }}"
+          else
+            # 12:00 UTC なら退勤、それ以外なら出勤と判定
+            HOUR=$(date +%H)
+            if [ "$HOUR" == "12" ]; then
+              TYPE="clock-out"
+            else
+              TYPE="attendance"
+            fi
+          fi
+          
+          echo "Starting $TYPE punch..."
+          npx tsx scripts/punch.mts "$TYPE"

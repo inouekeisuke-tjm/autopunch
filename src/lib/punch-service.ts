@@ -20,8 +20,10 @@ export interface PunchResult {
  * - Local dev: use system Chromium bundled with playwright-core
  */
 async function launchBrowser() {
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = process.env.NODE_ENV === "production" && !process.env.GITHUB_ACTIONS;
+  
   if (isProduction) {
+    // Vercel Serverless environment
     const chromium = await import("@sparticuz/chromium-min");
     return playwrightChromium.launch({
       args: chromium.default.args,
@@ -31,8 +33,13 @@ async function launchBrowser() {
       headless: true,
     });
   }
-  // Local: playwright-core needs an explicit executable path or the PLAYWRIGHT_BROWSERS_PATH env
-  return playwrightChromium.launch({ headless: true });
+
+  // Local or GitHub Actions (Ubuntu)
+  // playwright-core needs an explicit executable path or the PLAYWRIGHT_BROWSERS_PATH env
+  return playwrightChromium.launch({ 
+    headless: true,
+    // On systems like GitHub Actions, the browser is installed in a default path
+  });
 }
 
 /**

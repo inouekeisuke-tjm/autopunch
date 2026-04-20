@@ -1,4 +1,4 @@
-import { chromium as playwrightChromium, Page, Frame } from "playwright-core";
+import { chromium, Page, Frame } from "playwright";
 
 export type PunchType = "attendance" | "clock-out";
 
@@ -15,30 +15,12 @@ export interface PunchResult {
 }
 
 /**
- * Resolve Chromium executable path depending on environment.
- * - Production (Vercel): use @sparticuz/chromium (compressed binary for serverless)
- * - Local dev: use system Chromium bundled with playwright-core
+ * Launch Chromium browser.
+ * In GitHub Actions (Ubuntu) or Local (Windows), standard playwright works fine.
  */
 async function launchBrowser() {
-  const isProduction = process.env.NODE_ENV === "production" && !process.env.GITHUB_ACTIONS;
-  
-  if (isProduction) {
-    // Vercel Serverless environment
-    const chromium = await import("@sparticuz/chromium-min");
-    return playwrightChromium.launch({
-      args: chromium.default.args,
-      executablePath: await chromium.default.executablePath(
-        "https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar"
-      ),
-      headless: true,
-    });
-  }
-
-  // Local or GitHub Actions (Ubuntu)
-  // playwright-core needs an explicit executable path or the PLAYWRIGHT_BROWSERS_PATH env
-  return playwrightChromium.launch({ 
+  return chromium.launch({ 
     headless: true,
-    // On systems like GitHub Actions, the browser is installed in a default path
   });
 }
 

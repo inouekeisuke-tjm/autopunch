@@ -2,10 +2,10 @@ name: Attendance Auto Punch
 
 on:
   schedule:
-    # 平日 08:40 JST (23:40 UTC 前日) を遅延対策で30分早める
-    - cron: '10 23 * * 0-4'
-    # 平日 21:00 JST (12:00 UTC) を遅延対策で30分早める
-    - cron: '30 11 * * 1-5'
+    # 平日 07:45 JST (22:45 UTC 前日)
+    - cron: '45 22 * * 0-4'
+    # 平日 21:00 JST (12:00 UTC)
+    - cron: '0 12 * * 1-5'
   workflow_dispatch:
     inputs:
       type:
@@ -36,7 +36,7 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Determine Type and Wait for Target Time
+      - name: Determine Type
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "Workflow dispatch, running immediately."
@@ -46,31 +46,13 @@ jobs:
             JST_HOUR=$(TZ=Asia/Tokyo date +"%H")
             
             if [ "$JST_HOUR" -lt 12 ]; then
-              # Morning: attendance at 08:40 JST
               PUNCH_TYPE="attendance"
-              TARGET_H=8
-              TARGET_M=40
             else
-              # Evening: clock-out at 21:00 JST
               PUNCH_TYPE="clock-out"
-              TARGET_H=21
-              TARGET_M=0
             fi
             
             echo "Detected Type: $PUNCH_TYPE"
             echo "PUNCH_TYPE=$PUNCH_TYPE" >> $GITHUB_ENV
-            
-            # Target time in seconds for today
-            TARGET_SEC=$(TZ=Asia/Tokyo date -d "today $TARGET_H:$TARGET_M:00" +"%s")
-            CURRENT_SEC=$(TZ=Asia/Tokyo date +"%s")
-            
-            if [ "$CURRENT_SEC" -lt "$TARGET_SEC" ]; then
-              WAIT_SEC=$((TARGET_SEC - CURRENT_SEC))
-              echo "Waiting for ${WAIT_SEC} seconds to reach exactly $(printf "%02d:%02d" $TARGET_H $TARGET_M) JST..."
-              sleep $WAIT_SEC
-            else
-              echo "Already past $(printf "%02d:%02d" $TARGET_H $TARGET_M) JST. Executing immediately."
-            fi
           fi
 
       - name: Perform Punch

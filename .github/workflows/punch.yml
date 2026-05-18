@@ -2,10 +2,10 @@ name: Attendance Auto Punch
 
 on:
   schedule:
-    # 平日 07:45 JST (22:45 UTC 前日)
-    - cron: '45 22 * * 0-4'
-    # 平日 21:00 JST (12:00 UTC)
-    - cron: '0 12 * * 1-5'
+    # 平日 07:01 JST (22:01 UTC 前日)
+    - cron: '01 22 * * 0-4'
+    # 平日 19:03 JST (10:03 UTC)
+    - cron: '03 10 * * 1-5'
   workflow_dispatch:
     inputs:
       type:
@@ -60,6 +60,7 @@ jobs:
           PUNCH_URL: ${{ secrets.PUNCH_URL }}
           PUNCH_EMP_CODE: ${{ secrets.PUNCH_EMP_CODE }}
           PUNCH_PASSWORD: ${{ secrets.PUNCH_PASSWORD }}
+          SKIP_HOLIDAY_CHECK: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           echo "Starting $PUNCH_TYPE punch..."
           npx tsx scripts/punch.mts "$PUNCH_TYPE"

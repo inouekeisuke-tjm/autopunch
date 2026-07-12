@@ -49,6 +49,13 @@ async function main() {
       process.exit(0);
     }
 
+    // Check if it's past midnight JST (00:00 - 06:59 JST)
+    const jstHour = jstDate.getUTCHours();
+    if (jstHour >= 0 && jstHour < 7) {
+      console.error(`[Script] Delayed run detected: Current JST hour is ${jstHour}. Skipping punch to avoid date-crossing errors.`);
+      process.exit(1);
+    }
+
     // Check for National Holidays
     const dateStr = jstDate.toISOString().split('T')[0];
     if (NATIONAL_HOLIDAYS.includes(dateStr)) {
@@ -90,6 +97,20 @@ async function main() {
     const result = await performPunch(type, credentials);
     if (result.success) {
       console.log(`[Script] Success: ${result.message}`);
+      
+      // If it is an attendance punch and performed after 08:45 JST, exit with error to trigger notification
+      if (type === "attendance") {
+        const now = new Date();
+        const jstDate = new Date(now.getTime() + (9 * 60 * 60 * 1000));
+        const jstHour = jstDate.getUTCHours();
+        const jstMin = jstDate.getUTCMinutes();
+        
+        if (jstHour > 8 || (jstHour === 8 && jstMin >= 45)) {
+          console.error(`[Script] Warning: Attendance punch performed after 08:45 JST (${String(jstHour).padStart(2, '0')}:${String(jstMin).padStart(2, '0')}). Triggering error status for notification.`);
+          process.exit(1);
+        }
+      }
+      
       process.exit(0);
     } else {
       console.error(`[Script] Failed: ${result.message}`);

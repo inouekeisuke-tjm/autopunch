@@ -29,7 +29,7 @@ async function launchBrowser() {
  */
 async function handleSessionErrorIfPresent(page: Page, url: string) {
   const errorText = "前回の接続情報が残っています";
-  const isErrorPresent = await page.evaluate((text) => {
+  const isErrorPresent = await page.evaluate((text: string) => {
     return document.body.innerText.includes(text);
   }, errorText);
 

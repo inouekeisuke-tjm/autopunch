@@ -67,7 +67,7 @@ export default function Dashboard() {
               <Clock className="w-4 h-4 text-text-muted group-hover:text-text-primary transition-colors" />
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-light">08:40</div>
+              <div className="text-4xl font-light">07:01</div>
               <button 
                 name="type" 
                 value="attendance"
@@ -88,7 +88,7 @@ export default function Dashboard() {
               <Clock className="w-4 h-4 text-text-muted group-hover:text-text-primary transition-colors" />
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-light">21:00</div>
+              <div className="text-4xl font-light">19:04</div>
               <button 
                 name="type" 
                 value="clock-out"
@@ -156,16 +156,16 @@ export default function Dashboard() {
               通知設定
             </CardTitle>
             <CardDescription>
-              打刻完了時に確認メールを送信します。
+              打刻失敗時にエラーメールを送信します。
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between py-2 border-b border-border-default italic text-sm text-text-secondary">
               Email Notifications
-              <span className="text-success font-medium not-italic">Enabled</span>
+              <span className="text-error font-medium not-italic">Failed Only (inouek2@tjmdesign.com)</span>
             </div>
             <div className="text-xs text-text-muted text-center pt-2">
-              自動実行スケジュール: 平日 08:40 / 21:00
+              自動実行スケジュール: 平日 07:01 / 19:04
             </div>
           </CardContent>
           <CardContent className="pt-0">

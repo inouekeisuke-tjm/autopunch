@@ -4,8 +4,8 @@ on:
   schedule:
     # 平日 07:01 JST (22:01 UTC 前日)
     - cron: '01 22 * * 0-4'
-    # 平日 19:03 JST (10:03 UTC)
-    - cron: '03 10 * * 1-5'
+    # 平日 19:04 JST (10:04 UTC)
+    - cron: '04 10 * * 1-5'
   workflow_dispatch:
     inputs:
       type:
@@ -42,13 +42,15 @@ jobs:
             echo "Workflow dispatch, running immediately."
             echo "PUNCH_TYPE=${{ github.event.inputs.type }}" >> $GITHUB_ENV
           else
-            # Get current JST hour
-            JST_HOUR=$(TZ=Asia/Tokyo date +"%H")
-            
-            if [ "$JST_HOUR" -lt 12 ]; then
+            SCHEDULE="${{ github.event.schedule }}"
+            echo "Triggered by schedule: $SCHEDULE"
+            if [ "$SCHEDULE" == "01 22 * * 0-4" ]; then
               PUNCH_TYPE="attendance"
-            else
+            elif [ "$SCHEDULE" == "04 10 * * 1-5" ]; then
               PUNCH_TYPE="clock-out"
+            else
+              echo "Unknown schedule: $SCHEDULE"
+              exit 1
             fi
             
             echo "Detected Type: $PUNCH_TYPE"
@@ -64,3 +66,22 @@ jobs:
         run: |
           echo "Starting $PUNCH_TYPE punch..."
           npx tsx scripts/punch.mts "$PUNCH_TYPE"
+
+      - name: Send Email on Failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT || 465 }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "【警告】勤怠自動打刻失敗アラート"
+          to: inouek2@tjmdesign.com
+          from: AutoPunch Agent <${{ secrets.MAIL_USERNAME }}>
+          body: |
+            勤怠自動打刻（${{ env.PUNCH_TYPE }}）に失敗しました。
+            
+            実行ログおよびステータスは以下のURLから確認できます。
+            URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            お手数ですが、勤怠システムへログインし手動での打刻・修正を行ってください。

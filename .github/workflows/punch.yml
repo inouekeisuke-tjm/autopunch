@@ -2,8 +2,8 @@ name: Attendance Auto Punch
 
 on:
   schedule:
-    # 平日 07:01 JST (22:01 UTC 前日)
-    - cron: '01 22 * * 0-4'
+    # 平日 06:58 JST (21:58 UTC 前日)
+    - cron: '58 21 * * 0-4'
     # 平日 19:04 JST (10:04 UTC)
     - cron: '04 10 * * 1-5'
   workflow_dispatch:
@@ -44,7 +44,7 @@ jobs:
           else
             SCHEDULE="${{ github.event.schedule }}"
             echo "Triggered by schedule: $SCHEDULE"
-            if [ "$SCHEDULE" == "01 22 * * 0-4" ]; then
+            if [ "$SCHEDULE" == "58 21 * * 0-4" ]; then
               PUNCH_TYPE="attendance"
             elif [ "$SCHEDULE" == "04 10 * * 1-5" ]; then
               PUNCH_TYPE="clock-out"

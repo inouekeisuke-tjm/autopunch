@@ -1,11 +1,13 @@
 name: Attendance Auto Punch
 
 on:
-  schedule:
-    # 平日 06:58 JST (21:58 UTC 前日)
-    - cron: '58 21 * * 0-4'
-    # 平日 19:04 JST (10:04 UTC)
-    - cron: '04 10 * * 1-5'
+  # GitHub Actions 内蔵の schedule (cron) は遅延が発生するため、Vercel Cron からの workflow_dispatch 呼び出しに移行
+  # バックアップとして戻せるよう設定をコメントアウトして残しています
+  # schedule:
+  #   # 平日 06:58 JST (21:58 UTC 前日)
+  #   - cron: '58 21 * * 0-4'
+  #   # 平日 19:45 JST (10:45 UTC)
+  #   - cron: '45 10 * * 1-5'
   workflow_dispatch:
     inputs:
       type:
@@ -16,6 +18,11 @@ on:
         options:
           - attendance
           - clock-out
+      skip_holiday_check:
+        description: 'Skip holiday check'
+        required: false
+        default: 'false'
+        type: string
 
 jobs:
   punch:
@@ -46,7 +53,7 @@ jobs:
             echo "Triggered by schedule: $SCHEDULE"
             if [ "$SCHEDULE" == "58 21 * * 0-4" ]; then
               PUNCH_TYPE="attendance"
-            elif [ "$SCHEDULE" == "04 10 * * 1-5" ]; then
+            elif [ "$SCHEDULE" == "45 10 * * 1-5" ]; then
               PUNCH_TYPE="clock-out"
             else
               echo "Unknown schedule: $SCHEDULE"
@@ -62,7 +69,7 @@ jobs:
           PUNCH_URL: ${{ secrets.PUNCH_URL }}
           PUNCH_EMP_CODE: ${{ secrets.PUNCH_EMP_CODE }}
           PUNCH_PASSWORD: ${{ secrets.PUNCH_PASSWORD }}
-          SKIP_HOLIDAY_CHECK: ${{ github.event_name == 'workflow_dispatch' }}
+          SKIP_HOLIDAY_CHECK: ${{ github.event.inputs.skip_holiday_check == 'true' }}
         run: |
           echo "Starting $PUNCH_TYPE punch..."
           npx tsx scripts/punch.mts "$PUNCH_TYPE"

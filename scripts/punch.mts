@@ -49,9 +49,9 @@ async function main() {
       process.exit(0);
     }
 
-    // Check if it's past midnight JST (00:00 - 06:59 JST)
+    // Check if it's past midnight JST (00:00 - 05:59 JST)
     const jstHour = jstDate.getUTCHours();
-    if (jstHour >= 0 && jstHour < 7) {
+    if (jstHour >= 0 && jstHour < 6) {
       console.error(`[Script] Delayed run detected: Current JST hour is ${jstHour}. Skipping punch to avoid date-crossing errors.`);
       process.exit(1);
     }
@@ -92,6 +92,22 @@ async function main() {
   }
 
   console.log(`[Script] Starting ${type} punch process...`);
+  
+  // Pre-punch safety check: If attendance punch is about to run at or after 08:45 JST, abort without punching!
+  if (type === "attendance") {
+    const now = new Date();
+    const jstDate = new Date(now.getTime() + (9 * 60 * 60 * 1000));
+    const jstHour = jstDate.getUTCHours();
+    const jstMin = jstDate.getUTCMinutes();
+    
+    if (jstHour > 8 || (jstHour === 8 && jstMin >= 45)) {
+      console.error(
+        `[Script] CRITICAL SAFETY ABORT: Current time is ${String(jstHour).padStart(2, '0')}:${String(jstMin).padStart(2, '0')} JST (>= 08:45 JST). ` +
+        `Aborting punch operation to prevent recording a late arrival in the attendance system.`
+      );
+      process.exit(1);
+    }
+  }
   
   try {
     const result = await performPunch(type, credentials);

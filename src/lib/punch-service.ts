@@ -105,7 +105,8 @@ export async function performPunch(
     // 6. Click the punch button — performs the punch directly
     await btn.click();
 
-    // Wait briefly for the server to process the request
+    // Wait for network response and server processing
+    await page.waitForLoadState("networkidle").catch(() => {});
     await page.waitForTimeout(3000);
 
     return {

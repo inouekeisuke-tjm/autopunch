@@ -67,7 +67,7 @@ export default function Dashboard() {
               <Clock className="w-4 h-4 text-text-muted group-hover:text-text-primary transition-colors" />
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-light">06:58</div>
+              <div className="text-4xl font-light">08:35</div>
               <button 
                 name="type" 
                 value="attendance"
@@ -88,7 +88,7 @@ export default function Dashboard() {
               <Clock className="w-4 h-4 text-text-muted group-hover:text-text-primary transition-colors" />
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-light">19:04</div>
+              <div className="text-4xl font-light">19:45</div>
               <button 
                 name="type" 
                 value="clock-out"
@@ -165,7 +165,7 @@ export default function Dashboard() {
               <span className="text-error font-medium not-italic">Failed Only (inouek2@tjmdesign.com)</span>
             </div>
             <div className="text-xs text-text-muted text-center pt-2">
-              自動実行スケジュール: 平日 06:58 / 19:04
+              自動実行スケジュール: 平日 08:35 / 19:45 (高精度Vercel Cron)
             </div>
           </CardContent>
           <CardContent className="pt-0">

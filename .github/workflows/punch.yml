@@ -1,13 +1,11 @@
 name: Attendance Auto Punch
 
 on:
-  # GitHub Actions 内蔵の schedule (cron) は遅延が発生するため、Vercel Cron からの workflow_dispatch 呼び出しに移行
-  # バックアップとして戻せるよう設定をコメントアウトして残しています
-  # schedule:
-  #   # 平日 06:58 JST (21:58 UTC 前日)
-  #   - cron: '58 21 * * 0-4'
-  #   # 平日 19:45 JST (10:45 UTC)
-  #   - cron: '45 10 * * 1-5'
+  schedule:
+    # 平日 06:58 JST (21:58 UTC 前日)
+    - cron: '58 21 * * 0-4'
+    # 平日 19:45 JST (10:45 UTC)
+    - cron: '45 10 * * 1-5'
   workflow_dispatch:
     inputs:
       type:

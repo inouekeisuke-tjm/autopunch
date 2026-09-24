@@ -1,12 +1,3 @@
 {
-  "crons": [
-    {
-      "path": "/api/cron/trigger-punch?type=attendance",
-      "schedule": "35 23 * * 0-4"
-    },
-    {
-      "path": "/api/cron/trigger-punch?type=clock-out",
-      "schedule": "45 10 * * 1-5"
-    }
-  ]
+  "crons": []
 }

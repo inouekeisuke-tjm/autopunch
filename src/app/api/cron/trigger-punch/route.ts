@@ -57,6 +57,38 @@ export async function GET(request: NextRequest) {
     );
 
     const authPrefix = githubToken.startsWith("ghp_") ? "token" : "Bearer";
+
+    let diagnosticInfo: any = {};
+    try {
+      const userRes = await fetch("https://api.github.com/user", {
+        headers: {
+          Accept: "application/vnd.github+json",
+          Authorization: `${authPrefix} ${githubToken}`,
+          "User-Agent": "autopunch-vercel-cron",
+        },
+      });
+      const userData = await userRes.json();
+      const repoRes = await fetch(`https://api.github.com/repos/${repo}`, {
+        headers: {
+          Accept: "application/vnd.github+json",
+          Authorization: `${authPrefix} ${githubToken}`,
+          "User-Agent": "autopunch-vercel-cron",
+        },
+      });
+      const repoData = await repoRes.json();
+      diagnosticInfo = {
+        authenticatedUser: userData.login || userData.message,
+        repoPermissions: repoData.permissions || repoData.message,
+      };
+      console.log(
+        `[Cron API] Token user: "${diagnosticInfo.authenticatedUser}", Repo permissions:`,
+        diagnosticInfo.repoPermissions
+      );
+    } catch (e: any) {
+      diagnosticInfo = { error: e?.message || String(e) };
+      console.warn("[Cron API] Diagnostic check failed:", e);
+    }
+
     const ghResponse = await fetch(
       `https://api.github.com/repos/${repo}/actions/workflows/punch.yml/dispatches`,
       {
@@ -90,6 +122,7 @@ export async function GET(request: NextRequest) {
           details: errorText,
           scopes: oauthScopes,
           acceptedScopes: acceptedScopes,
+          diagnostic: diagnosticInfo,
         },
         { status: ghResponse.status }
       );

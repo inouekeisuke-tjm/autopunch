@@ -56,13 +56,14 @@ export async function GET(request: NextRequest) {
       `[Cron API] Triggering GitHub workflow punch.yml for ${punchType} on ${repo}@${branch}...`
     );
 
+    const authPrefix = githubToken.startsWith("ghp_") ? "token" : "Bearer";
     const ghResponse = await fetch(
       `https://api.github.com/repos/${repo}/actions/workflows/punch.yml/dispatches`,
       {
         method: "POST",
         headers: {
           Accept: "application/vnd.github+json",
-          Authorization: `Bearer ${githubToken}`,
+          Authorization: `${authPrefix} ${githubToken}`,
           "X-GitHub-Api-Version": "2022-11-28",
           "User-Agent": "autopunch-vercel-cron",
           "Content-Type": "application/json",
@@ -78,13 +79,17 @@ export async function GET(request: NextRequest) {
 
     if (!ghResponse.ok) {
       const errorText = await ghResponse.text();
+      const oauthScopes = ghResponse.headers.get("x-oauth-scopes");
+      const acceptedScopes = ghResponse.headers.get("x-accepted-oauth-scopes");
       console.error(
-        `[Cron API] GitHub API dispatch failed with status ${ghResponse.status}: ${errorText}`
+        `[Cron API] GitHub API dispatch failed with status ${ghResponse.status}: ${errorText} (scopes: ${oauthScopes}, accepted: ${acceptedScopes})`
       );
       return NextResponse.json(
         {
           error: `GitHub API dispatch failed (${ghResponse.status})`,
           details: errorText,
+          scopes: oauthScopes,
+          acceptedScopes: acceptedScopes,
         },
         { status: ghResponse.status }
       );

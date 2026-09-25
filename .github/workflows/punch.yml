@@ -1,11 +1,10 @@
 name: Attendance Auto Punch
 
 on:
-  schedule:
-    # 平日 06:58 JST (21:58 UTC 前日)
-    - cron: '58 21 * * 0-4'
-    # 平日 19:45 JST (10:45 UTC)
-    - cron: '45 10 * * 1-5'
+  # Vercel Cron からの workflow_dispatch 呼び出しで実行
+  # schedule:
+  #   - cron: '58 21 * * 0-4'
+  #   - cron: '45 10 * * 1-5'
   workflow_dispatch:
     inputs:
       type:

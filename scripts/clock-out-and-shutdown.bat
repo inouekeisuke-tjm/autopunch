@@ -1,22 +1,8 @@
 @echo off
-chcp 65001 >nul
-title 自動退勤 ＆ シャットダウン
-
-cd /d "%~dp0.."
-
-echo ---------------------------------------------------
-echo  自動退勤＆シャットダウン処理を開始します...
-echo ---------------------------------------------------
-
+cd /d %~dp0..
 call npx tsx scripts/clock-out-and-shutdown.mts
-
 if %ERRORLEVEL% NEQ 0 (
     echo.
-    echo ===================================================
-    echo  エラーが発生しました。
-    echo  安全のためPCのシャットダウンは行いませんでした。
-    echo ===================================================
-    echo.
+    echo An error occurred. PC shutdown was canceled.
     pause
 )
-

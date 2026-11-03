@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/trigger-punch?type=attendance",
-      "schedule": "55 22 * * 0-4"
+      "schedule": "45 22 * * 0-4"
     }
   ]
 }
